@@ -1,0 +1,52 @@
+This release contains the following changes:
+
+	- Log that shows the version of the Samsung OpenIAB.
+	- Constant variables are created for Samsung IAP test modes to avoid the use of literals 
+	- Changed purchaseProduct to purchaseSubscription when purchasing subscription items.
+	- Fixed minor bugs - crash during consume, svace static code analysis
+
+
+Using the OpenIAB Setup Menu in the sample application:
+	- This menu allows users to modify the OpenIAB options of the CityFlyer sample application
+	at runtime to affect the behavior of the Appstore selection algorithm. For more 
+	information on each of the options, please refer to the Options class	in the documentation.
+	
+	- Normally, this screen should not be available to end users and is useful for
+	testing purposes only.
+	
+	- A quick usage guide is shown below:
+	
+		> For Samsung Appstore:
+			- Uncheck "Check Inventory"
+			- Set search strategy to "Best Fit"
+			- Check "Force Samsung"
+			- Choose any of the Samsung IAP Modes
+			- Launch Game
+		
+		> For Google Appstore (Method 1):
+			- Sideload the apk with "adb install -r -i com.android.vending CityIAP_RC3.0.apk"
+			- Set search strategy to "Installer" or "Installer then Best Fit"
+			- Launch Game
+			
+		> For Google Appstore (Method 2):
+			- Install the apk without any appstore packages
+			- Set search strategy to "Best Fit"
+			- Check "Google"
+			- Launch Game
+			
+		> For Amazon Appstore:
+			- Make sure Amazon Underground is installed in the phone
+			- Add amazon.sdktester.json to /mnt/sdcard on the phone
+			- Sideload the apk with "adb install -r -i com.amazon.venezia CityIAP_RC3.0.apk"
+			- Check "Amazon"
+			- Launch Game
+
+	- NOTES:
+		> Some options take higher priority than others. For example, if google play
+		is selected as a preferred appstore while the "Force Samsung" is selected,
+		Google Play would still be chosen.
+		
+Using the CityFlyerProject.unitypackage
+		- Create a new unity project
+	- Import the CityFlyerProject.unitypackage
+	- Import the ProjectSettings.unitypackage
