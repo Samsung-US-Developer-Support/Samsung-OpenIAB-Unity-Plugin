@@ -10,6 +10,7 @@ This is the initial release, version 1.0
 The documentation describes how to successfully integrate Samsung OpenIAB Unity plugin into your Unity project, using the sample game City Flyer, a three-dimensional plane flight simulator that lets users navigate over a city. For complete information please review our documentation:
 * Samsung OpenIAB Unity Plugin Integration Guide for Samsung Galaxy Apps
 * OpenIAB Unity Plugin API Reference for Samsung IAP 3.0
+
 Sample application files:
 * CityFlyerProject.unitypackage
 * CityFlyerProject_options.unitypackage
