@@ -5,6 +5,8 @@ The modified Open In-App Billing (OpenIAB) Unity plugin and library extend OpenI
 
 #Version 
 This is the initial release, version 1.0
+* OpenIAB-plugin.unitypackage 
+* OpenIAB Unity PlugIn (Library and plugin source code)
 
 #Documentation and Sample Application
 The documentation describes how to successfully integrate Samsung OpenIAB Unity plugin into your Unity project, using the sample game City Flyer, a three-dimensional plane flight simulator that lets users navigate over a city. For complete information please review our documentation:
