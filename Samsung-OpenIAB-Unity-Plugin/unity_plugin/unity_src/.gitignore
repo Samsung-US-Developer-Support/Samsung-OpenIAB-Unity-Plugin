@@ -1,0 +1,7 @@
+/Library/
+/Temp/
+/ProjectSettings/
+*.csproj
+*.sln
+/Export/
+*.unity_src.sln.DotSettings

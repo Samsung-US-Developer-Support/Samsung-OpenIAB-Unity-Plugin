@@ -35,8 +35,8 @@ Using the OpenIAB Setup Menu in the sample application:
 			- Launch Game
 			
 		> For Amazon Appstore:
-			- Make sure Amazon Underground is installed in the phone
-			- Add amazon.sdktester.json to /mnt/sdcard on the phone
+			- Make sure Amazon Underground is installed in the device
+			- Add amazon.sdktester.json found in Samsung-OpenIAB-Unity-Plugin\OpenIAB\library  to \mnt\sdcard on the device
 			- Sideload the apk with "adb install -r -i com.amazon.venezia CityIAP_RC3.0.apk"
 			- Check "Amazon"
 			- Launch Game
@@ -47,6 +47,6 @@ Using the OpenIAB Setup Menu in the sample application:
 		Google Play would still be chosen.
 		
 Using the CityFlyerProject.unitypackage
-		- Create a new unity project
+	- Create a new unity project
 	- Import the CityFlyerProject.unitypackage
 	- Import the ProjectSettings.unitypackage

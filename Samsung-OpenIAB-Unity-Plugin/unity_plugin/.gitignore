@@ -1,0 +1,4 @@
+*.jar, !/libs/*.jar
+*.jar.meta
+*.so
+*.so.meta
