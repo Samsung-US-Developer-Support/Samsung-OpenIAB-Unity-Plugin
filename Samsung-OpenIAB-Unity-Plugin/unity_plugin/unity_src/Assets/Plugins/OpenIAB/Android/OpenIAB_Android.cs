@@ -302,7 +302,7 @@ namespace OnePF
             }
 
             jvalue[] args = new jvalue[1];
-            args[0].l = AndroidJNI.NewStringUTF("skuType");
+            args[0].l = AndroidJNI.NewStringUTF(skuType);
 
             IntPtr methodId = AndroidJNI.GetMethodID(_plugin.GetRawClass(), "querySkuList", "(Ljava/lang/String;)V");
             AndroidJNI.CallVoidMethod(_plugin.GetRawObject(), methodId, args);

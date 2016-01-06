@@ -1,10 +1,15 @@
+Version 1.1
+This release contains the following changes:
+
+	- Fixed the root cause of the issue (improper converting of data from Unity level to Java level)
+
+Version 1.0
 This release contains the following changes:
 
 	- Log that shows the version of the Samsung OpenIAB.
 	- Constant variables are created for Samsung IAP test modes to avoid the use of literals 
 	- Changed purchaseProduct to purchaseSubscription when purchasing subscription items.
 	- Fixed minor bugs - crash during consume, svace static code analysis
-
 
 Using the OpenIAB Setup Menu in the sample application:
 	- This menu allows users to modify the OpenIAB options of the CityFlyer sample application
@@ -50,3 +55,5 @@ Using the CityFlyerProject.unitypackage
 	- Create a new unity project
 	- Import the CityFlyerProject.unitypackage
 	- Import the ProjectSettings.unitypackage
+
+	
