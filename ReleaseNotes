@@ -1,3 +1,7 @@
+Version 1.2
+This release contains the following changes:
+	- Proper linking of scripts in the plugin
+
 Version 1.1
 This release contains the following changes:
 
@@ -56,4 +60,4 @@ Using the CityFlyerProject.unitypackage
 	- Import the CityFlyerProject.unitypackage
 	- Import the ProjectSettings.unitypackage
 
-	
+	evel)
