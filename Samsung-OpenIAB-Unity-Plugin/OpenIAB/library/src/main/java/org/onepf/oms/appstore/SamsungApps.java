@@ -32,7 +32,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.widget.Toast;
-
+import android.content.pm.PackageInfo;
 import org.onepf.oms.SkuManager;
 import org.onepf.oms.appstore.googleUtils.IabException;
 import org.onepf.oms.appstore.googleUtils.IabHelper;
@@ -70,15 +70,15 @@ import java.util.concurrent.CountDownLatch;
  */
 public class SamsungApps extends DefaultAppstore {
 
-	public static final int SAMSUNG_IAP_MODE_UNSET = -100;
+    private static final String LOG_TAG = "SamsungApps-- ";
+    public static final int SAMSUNG_IAP_MODE_UNSET = -100;
     public static final String SAMSUNG_INSTALLER = "com.sec.android.app.samsungapps";
-
-    private static final int IAP_SIGNATURE_HASHCODE = 0x7a7eaf4b;
+    //private static final int IAP_SIGNATURE_HASHCODE = 0x7a7eaf4b;
+    private static final int IAP_SIGNATURE_HASHCODE = 0x7357dcc5;
 	private static final int GAPPS_SIGNATURE_HASHCODE = 0x79998d13;
-    public static final String IAP_PACKAGE_NAME = "com.sec.android.iap";
+    public static final String  IAP_PACKAGE_NAME = "com.sec.android.app.billing";
     public static final String IAP_SERVICE_NAME = "com.sec.android.iap.service.iapService";
-	public static final String IAP_GALAXY_APPS_PACKAGE_NAME = "com.sec.android.app.samsungapps";
-
+    public static final String IAP_GALAXY_APPS_PACKAGE_NAME = "com.sec.android.app.samsungapps";
 
     private AppstoreInAppBillingService billingService;
     private Activity activity;
@@ -107,7 +107,9 @@ public class SamsungApps extends DefaultAppstore {
      */
     @Override
     public boolean isBillingAvailable(String packageName) {
+        Logger.d(LOG_TAG, "isBillingAvailable for package "+packageName);
         if (isBillingAvailable != null) {
+            Logger.d(LOG_TAG, "isBillingAvailable  "+isBillingAvailable);
             return isBillingAvailable;
         }
 
@@ -120,27 +122,44 @@ public class SamsungApps extends DefaultAppstore {
 		PackageManager pm = activity.getPackageManager();
         try {
             pm.getApplicationInfo(IAP_PACKAGE_NAME, PackageManager.GET_META_DATA);
-			iapInstalled = true;
+            iapInstalled = true;
+
+            //Check if Samsung Billing is enabled
+            if(!isAppEnabled(IAP_PACKAGE_NAME)){
+                Logger.d(LOG_TAG, "Samsung Billing is disabled");
+                showAppDetails(IAP_PACKAGE_NAME);
+                return false;
+            }
+            PackageInfo packageInfo = pm.getPackageInfo(IAP_PACKAGE_NAME, PackageManager.GET_META_DATA);
+            if(packageInfo.versionCode < 400000000) {
+                throw new Exception();
+            }
         } catch (Exception e) {
-            Logger.d("isBillingAvailable() Samsung IAP Service is not installed");
-			Logger.d("Attempting to install Samsung IAP...");
-			iapInstalled = false;
-			//Galaxy apps should be enabled in order to download the Samsung IAP 
+
+            if(iapInstalled){
+                Logger.d(LOG_TAG, "Samsung Billing version is not updated "+e.getMessage());
+                Logger.d(LOG_TAG, "Attempting to updated Samsung Billing application...");
+            }else{
+                Logger.d(LOG_TAG, "Samsung Billing is not installed in the device "+e.getMessage());
+                Logger.d(LOG_TAG, "Attempting to install Samsung Billing application...");
+            }
+            iapInstalled = false;
+
+            //Galaxy apps should be enabled in order to download the Samsung IAP
 			
 			try{
-				Logger.d("Trying to check if Galaxy Apps is enabled");
-				pm.getApplicationInfo(IAP_GALAXY_APPS_PACKAGE_NAME, PackageManager.GET_META_DATA);
-				gAppsInstalled = true;
-				
-				if(!isAppEnabled(IAP_GALAXY_APPS_PACKAGE_NAME)){
-					Logger.d("Galaxy Apps: disabled, Galaxy Apps should be enabled to download Samsung IAP");
-					showAppDetails(IAP_GALAXY_APPS_PACKAGE_NAME);
-					return false;
-				}
 
+                pm.getApplicationInfo(IAP_GALAXY_APPS_PACKAGE_NAME, PackageManager.GET_META_DATA);
+                gAppsInstalled = true;
+
+                if(!isAppEnabled(IAP_GALAXY_APPS_PACKAGE_NAME)){
+                    Logger.d(LOG_TAG, "Galaxy Apps: disabled, Galaxy Apps should be enabled to download Samsung Billing");
+                    showAppDetails(IAP_GALAXY_APPS_PACKAGE_NAME);
+                    return false;
+                }
 			}catch(Exception ex){
 				gAppsInstalled = false;
-				Logger.d("Galaxy Apps is not installed or needs update " + ex.getMessage() );
+				Logger.d(LOG_TAG, "Galaxy Apps is not installed or needs update " + ex.getMessage() );
 			}
 			
 			if(!gAppsInstalled){
@@ -148,16 +167,22 @@ public class SamsungApps extends DefaultAppstore {
 			}
 			try{
 				Intent intent = new Intent();
-				intent.setData(Uri.parse("samsungapps://ProductDetail/com.sec.android.iap"));
+				intent.setData(Uri.parse("samsungapps://ProductDetail/com.sec.android.app.billing"));
 				if (Build.VERSION.SDK_INT >= 12) {
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | 32);
 				} else {
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				}
 				activity.startActivity(intent);
-				activity.finish();
-			}catch(Exception err){
-				Logger.d("Error: " + err.getMessage());
+				/*Note: If user launch the application and Samsung IAP is not installed in the device then it will take us to the Samsung app store to install the Samsung IAP first,
+                After installation of Samsung IAP, if user press the back button, the main application is no more there, the reason is when we are launching the Samsung app store,
+                We are calling finish() on the Main activity, this call is being commented as part of Unity Plugin 1.3 version, so that application remains theere in case of
+                user is being navigated to samsung app store.*/
+
+                //activity.finish();
+
+            }catch(Exception err){
+				Logger.d(LOG_TAG, "Error: " + err.getMessage());
 				return false;
 			}
 
@@ -167,16 +192,9 @@ public class SamsungApps extends DefaultAppstore {
             return false;
         }
 		
-		//Check if Samsung IAP is enabled
-        if(!isAppEnabled(IAP_PACKAGE_NAME)){
-            Logger.d("Samsung In-App Purchase is disabled");
-			showAppDetails(IAP_PACKAGE_NAME);
-            return false;
-        }
-
         if (isSamsungTestMode || isSamsungForced) {
-            Logger.d("isBillingAvailable() billing is supported in test mode.");
             isBillingAvailable = true;
+            Logger.d(LOG_TAG, "Samsung Billing is supported in test mode.");
             return true;
         }
 
@@ -195,7 +213,7 @@ public class SamsungApps extends DefaultAppstore {
                                     isBillingAvailable = true;
                                 }
                             } catch (IabException e) {
-                                Logger.e("isBillingAvailable() failed", e);
+                                Logger.e(LOG_TAG, "isBillingAvailable() failed", e);
                             } finally {
                                 getInAppBillingService().dispose();
                                 mainLatch.countDown();
@@ -212,7 +230,7 @@ public class SamsungApps extends DefaultAppstore {
         try {
             mainLatch.await();
         } catch (InterruptedException e) {
-            Logger.e("isBillingAvailable() interrupted", e);
+            Logger.e(LOG_TAG, "isBillingAvailable() interrupted", e);
         }
 
         return isBillingAvailable;
@@ -312,7 +330,7 @@ public class SamsungApps extends DefaultAppstore {
 			}
 			// Start Activity
 			final String appPublicName = (String)((appToCheck != null) ? activity.getPackageManager().getApplicationLabel(appToCheck) : appname);
-			Logger.d(appname+"/"+appPublicName + " is disabled, redirecting to Application Info");
+			Logger.d(LOG_TAG, appname+"/"+appPublicName + " is disabled, redirecting to Application Info");
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
 					Toast.makeText(activity, "Please enable " + appPublicName + ". Please restart the app for changes to take effect.", Toast.LENGTH_LONG).show();

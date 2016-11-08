@@ -26,7 +26,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.sec.android.iap.IAPConnector;
+import com.sec.android.app.billing.iap.IAPConnector;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,6 +61,8 @@ import java.util.Set;
  */
 
 public class SamsungAppsBillingService implements AppstoreInAppBillingService {
+
+    private static final String LOG_TAG = "SamsungAppsBillingService++ ";
     private static final int ITEM_RESPONSE_COUNT = 100;
 
     // IAP Modes are used for IAPConnector.init() 
@@ -69,9 +71,11 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
     public static final int IAP_MODE_TEST_FAIL = -1;
     private static final int CURRENT_MODE = (SamsungApps.samsungIapMode == SamsungApps.SAMSUNG_IAP_MODE_UNSET) ? (SamsungApps.isSamsungTestMode ? IAP_MODE_TEST_SUCCESS : IAP_MODE_COMMERCIAL) : SamsungApps.samsungIapMode;
 
-    public static final String IAP_SERVICE_NAME = "com.sec.android.iap.service.iapService";
-    public static final String ACCOUNT_ACTIVITY_NAME = "com.sec.android.iap.activity.AccountActivity";
-    public static final String PAYMENT_ACTIVITY_NAME = "com.sec.android.iap.activity.PaymentMethodListActivity";
+    public static final String IAP_SERVICE_NAME         = "com.sec.android.app.billing.iap.service.IAPService";
+    public static final String ACCOUNT_ACTIVITY_NAME    = "com.sec.android.app.billing.iap.activity.AccountActivity";
+    public static final String PAYMENT_ACTIVITY_NAME    = "com.sec.android.app.billing.iap.activity.PaymentMethodListActivity";
+
+
     // ========================================================================
     // BILLING RESPONSE CODE
     // ========================================================================
@@ -160,7 +164,10 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
 
     @Override
     public void startSetup(final OnIabSetupFinishedListener listener) {
-        Logger.d("Samsung Billing startSetup");
+
+        Logger.d(LOG_TAG, "Samsung Billing startSetup");
+        Logger.d(LOG_TAG, "Samsung IAP current mode is = "+CURRENT_MODE);
+
         this.setupListener = listener;
 
         ComponentName com = new ComponentName(SamsungApps.IAP_PACKAGE_NAME, ACCOUNT_ACTIVITY_NAME);
@@ -225,7 +232,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                     try {
                         itemInbox = mIapConnector.getItemsInbox2(activity.getPackageName(), itemId);
                     } catch (RemoteException e) {
-                        Logger.e("Samsung getItemList: ", e);
+                        Logger.e(LOG_TAG, "Samsung getItemList: ", e);
                     }
                 }
                 while (processItemsBundle(itemInbox, getItemGroupId(itemId), inventory, querySkuDetails, true, true, queryItemIds));
@@ -240,10 +247,10 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                 do {
                     itemInbox = null;
                     try {
-                        Logger.d("getItemsInbox, startNum = ", startNum, ", endNum = ", endNum);
+                        Logger.d(LOG_TAG, "getItemsInbox, startNum = ", startNum, ", endNum = ", endNum);
                         itemInbox = mIapConnector.getItemsInbox(activity.getPackageName(), itemGroupId, startNum, endNum, "19700101", today);
                     } catch (RemoteException e) {
-                        Logger.e("Samsung getItemsInbox: ", e);
+                        Logger.e(LOG_TAG, "Samsung getItemsInbox: ", e);
                     }
                     startNum += ITEM_RESPONSE_COUNT;
                     endNum += ITEM_RESPONSE_COUNT;
@@ -278,7 +285,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                         try {
                             itemList = mIapConnector.getItemList(CURRENT_MODE, activity.getPackageName(), itemGroupId, startNum, endNum, ITEM_TYPE_ALL);
                         } catch (RemoteException e) {
-                            Logger.e("Samsung getItemList: ", e);
+                            Logger.e(LOG_TAG, "Samsung getItemList: ", e);
                         }
                         startNum += ITEM_RESPONSE_COUNT;
                         endNum += ITEM_RESPONSE_COUNT;
@@ -301,7 +308,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
     @Override
     public List<SkuDetails> querySkuList(String skuType) throws IabException{
 
-        Logger.d("Entered querySkuList(String skuType) in SamsungAppsBillingService.java");
+        Logger.d(LOG_TAG, "Entered querySkuList(String skuType) in SamsungAppsBillingService.java");
 
         List<SkuDetails> _skuMap = new ArrayList<SkuDetails>();
         int startNum = 1;
@@ -315,7 +322,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
         try {
             itemList = mIapConnector.getItemList(CURRENT_MODE, activity.getPackageName(), itemGroupId, startNum, endNum, skuType);
         } catch (RemoteException e) {
-            Logger.e("Samsung getItemList: ", e);
+            Logger.e(LOG_TAG, "Samsung getItemList: ", e);
         }
         String errorString;
         int statusCode;
@@ -331,7 +338,6 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
 
             if(nameResults!=null){
                 for (String nameResult : nameResults) {
-                    Logger.d("nameResult: " + nameResult);
                     try {
                         JSONObject item = new JSONObject(nameResult);
                         String itemId = item.getString(JSON_KEY_ITEM_ID);
@@ -345,8 +351,9 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                         _skuMap.add(new SkuDetails(itemType,
                                 SkuManager.getInstance().getSku(OpenIabHelper.NAME_SAMSUNG, skuId),
                                 name, price, desc));
+                        Logger.d(LOG_TAG, "itemId:" + itemId  +" itemType:"+itemType + " name: "+name + " price:"+price + " description: "+desc);
                     } catch (JSONException e) {
-                        Logger.e("JSON parse error", e);
+                        Logger.e(LOG_TAG, "JSON parse error", e);
                     }
                 }
             }else{
@@ -376,7 +383,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
             bundle.putString(KEY_NAME_ITEM_GROUP_ID, itemGroupId);
         }
         bundle.putString(KEY_NAME_ITEM_ID, itemId);
-        Logger.d("launchPurchase: itemGroupId = ", itemGroupId, ", itemId = ", itemId);
+        Logger.d(LOG_TAG, "launchPurchase: itemGroupId = ", itemGroupId, ", itemId = ", itemId);
         ComponentName cmpName = new ComponentName(SamsungApps.IAP_PACKAGE_NAME, PAYMENT_ACTIVITY_NAME);
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -387,14 +394,14 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
         purchasingItemType = itemType;
         mItemGroupId = itemGroupId;
         mExtraData = extraData;
-        Logger.d("Request code: ", requestCode);
+        Logger.d(LOG_TAG, "Request code: ", requestCode);
         activity.startActivityForResult(intent, requestCode);
     }
 
     @Override
     public boolean handleActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == options.getSamsungCertificationRequestCode()) {
-            Logger.d("Samsung Billing resultCode = " + resultCode );
+            Logger.d(LOG_TAG, "Samsung Billing resultCode = " + resultCode );
             if (resultCode == Activity.RESULT_OK) {
                 bindIapService();
             } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -445,7 +452,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                     purchase.setPurchaseTime(Long.parseLong(purchaseJson.getString(JSON_KEY_PURCHASE_DATE)));
                     purchase.setToken(purchaseJson.getString(JSON_KEY_PURCHASE_ID));
                 } catch (JSONException e) {
-                    Logger.e("JSON parse error: ", e);
+                    Logger.e(LOG_TAG, "JSON parse error: ", e);
                 }
 
                 purchase.setItemType(purchasingItemType);
@@ -460,7 +467,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                 purchase.setDeveloperPayload(mExtraData);
             }
         }
-        Logger.d("Samsung result code: ", errorCode, ", msg: ", errorMsg);
+        Logger.d(LOG_TAG, "Samsung result code: ", errorCode, ", msg: ", errorMsg);
         mPurchaseListener.onIabPurchaseFinished(new IabResult(errorCode, errorMsg), purchase);
         return true;
     }
@@ -509,11 +516,11 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
     }
 
     private void bindIapService() {
-        Logger.d("bindIapService");
+        Logger.d(LOG_TAG, "bindIapService");
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Logger.d("onServiceConnected");
+                Logger.d(LOG_TAG, "onServiceConnected");
                 mIapConnector = IAPConnector.Stub.asInterface(service);
                 if (mIapConnector != null) {
                     initIap();
@@ -528,7 +535,9 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
             }
         };
 
-        final Intent implicitIntent = new Intent(IAP_SERVICE_NAME);
+        final Intent implicitIntent = new Intent();
+        implicitIntent.setComponent(new ComponentName(SamsungApps.IAP_PACKAGE_NAME, IAP_SERVICE_NAME));
+
         final List<ResolveInfo> infoList = activity.getPackageManager().queryIntentServices(implicitIntent, 0);
         if (!CollectionUtils.isEmpty(infoList)) {
             final ResolveInfo serviceInfo = infoList.get(0);
@@ -551,14 +560,14 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
             Bundle result = mIapConnector.init(CURRENT_MODE);
             if (result != null) {
                 int statusCode = result.getInt(KEY_NAME_STATUS_CODE);
-                Logger.d("Init IAP connection status code: ", statusCode);
+                Logger.d(LOG_TAG, "Init IAP connection status code: ", statusCode);
                 errorMsg = result.getString(KEY_NAME_ERROR_STRING);
                 if (statusCode == IAP_ERROR_NONE) {
                     errorCode = IabHelper.BILLING_RESPONSE_RESULT_OK;
                 }
             }
         } catch (RemoteException e) {
-            Logger.e("Init IAP: ", e);
+            Logger.e(LOG_TAG, "Init IAP: ", e);
         }
         setupListener.onIabSetupFinished(new IabResult(errorCode, errorMsg));
     }
@@ -567,10 +576,10 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
         if (itemsBundle == null || itemsBundle.getInt(KEY_NAME_STATUS_CODE) != IAP_ERROR_NONE) {
             return false;
         }
-
+        Logger.d(LOG_TAG, " processItemsBundle function called ");
         ArrayList<String> nameResults = itemsBundle.getStringArrayList(KEY_NAME_RESULT_LIST);
         for (String nameResult : nameResults) {
-            Logger.d("nameResult: " + nameResult);
+
             try {
                 JSONObject item = new JSONObject(nameResult);
                 String itemId = item.getString(JSON_KEY_ITEM_ID);
@@ -608,7 +617,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                     }
                 }
             } catch (JSONException e) {
-                Logger.e("JSON parse error", e);
+                Logger.e(LOG_TAG, "JSON parse error", e);
             }
         }
         return nameResults.size() == ITEM_RESPONSE_COUNT;
@@ -635,7 +644,7 @@ public class SamsungAppsBillingService implements AppstoreInAppBillingService {
                         extra = false;
                     }
                 }catch (Exception e){
-                    Logger.e(e.getMessage() + " extraParams object type is not supported, queryInventory is executed is not in cached mode");
+                    Logger.e(LOG_TAG, e.getMessage() + " extraParams object type is not supported, queryInventory is executed is not in cached mode");
                     extra = false;
                 }
             }

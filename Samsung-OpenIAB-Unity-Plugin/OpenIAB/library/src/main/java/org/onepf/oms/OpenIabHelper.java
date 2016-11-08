@@ -86,7 +86,7 @@ import static org.onepf.oms.OpenIabHelper.Options.VERIFY_SKIP;
 public class OpenIabHelper {
 	
 	// Version Details
-	private static final String OPENIAB_SAMSUNG_VER = "1.0.0";
+	private static final String OPENIAB_SAMSUNG_VER = "1.4";
 	
     // Intent to discover and bind to Open Stores
     private static final String BIND_INTENT = "org.onepf.oms.openappstore.BIND";

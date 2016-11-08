@@ -1,3 +1,16 @@
+Version 1.4
+
+The Samsung Open IAB 1.4 plug-in is developed with Samsung In App purchase 4.0.1 SDK.
+http://developer.samsung.com/iap
+
+- To perform any Samsung IAP transaction, we only need Samsung Billing application in the device (we don't need Samsung IAP application any more)
+- Logging have been improved for debugging purpose.
+   SamsungAppsBillingService logs will be printed with "SamsungAppsBillingService++" tag
+   SamsungApps logs will be printed with "SamsungApps--" tag.
+- Billing permission added for Samsung Billing
+  <uses-permission android:name="com.sec.android.app.billing.permission.BILLING"/>
+  
+
 Version 1.2
 This release contains the following changes:
 	- Proper linking of scripts in the plugin
