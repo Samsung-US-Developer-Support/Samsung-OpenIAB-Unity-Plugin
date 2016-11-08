@@ -3,6 +3,8 @@ Version 1.4
 The Samsung Open IAB 1.4 plug-in is developed with Samsung In App purchase 4.0.1 SDK.
 http://developer.samsung.com/iap
 
+You can find the Samsung OpenIAB Unity Plugin documentation online at Samsung Developers website: https://resources.samsungdevelopers.com/In-App_Purchasing/OpenIAB_Unity_Plugin
+
 - To perform any Samsung IAP transaction, we only need Samsung Billing application in the device (we don't need Samsung IAP application any more)
 - Logging have been improved for debugging purpose.
    SamsungAppsBillingService logs will be printed with "SamsungAppsBillingService++" tag
