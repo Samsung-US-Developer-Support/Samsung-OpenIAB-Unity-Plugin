@@ -13,6 +13,8 @@ The documentation describes how to successfully integrate Samsung OpenIAB Unity 
 * Samsung OpenIAB Unity plug-in for Samsung IAP 4.0.1 Programming Guide
 * Samsung OpenIAB Unity plug-in for Samsung IAP 4.0.1 API Reference
 
+You can also find the documentation online at Samsung Developers Resources [website] (https://resources.samsungdevelopers.com/In-App_Purchasing/OpenIAB_Unity_Plugin)
+
 Sample application files:
 * CityFlyerProject.unitypackage - [Available in Releases page](https://github.com/Samsung-US-Developer-Support/Samsung-OpenIAB-Unity-Plugin/releases)
 * CityFlyerProject_options.unitypackage - [Available in Releases page](https://github.com/Samsung-US-Developer-Support/Samsung-OpenIAB-Unity-Plugin/releases)
