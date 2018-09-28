@@ -1,5 +1,7 @@
 # Samsung-OpenIAB-Unity-Plugin
 
+Sept 2018: The plugin is now deprecated, no further updates will be done. 
+
 #About
 The modified Open In-App Billing (OpenIAB) Unity plugin and library extend OpenIAB purchasing and billing transaction management by relying on the Samsung In-App Purchase (IAP) 4.0.1. For further information please visit our [Wiki.] (https://github.com/Samsung-US-Developer-Support/Samsung-OpenIAB-Unity-Plugin/wiki)
 
